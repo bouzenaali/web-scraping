@@ -6,6 +6,11 @@ def get_html(base_url, page):
         "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     resp = httpx.get(base_url + str(page), headers=headers, follow_redirects=True)
+    try:
+        resp.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        print(f"Error response {exc.response.status_code} while requesting {exc.request.url!r}. Page limit exceeded.")
+        return False
     html = HTMLParser(resp.text)
     return html
 
@@ -32,9 +37,11 @@ def parse_page(html):
 
 def main():
     baseurl = "https://www.rei.com/c/camping-and-hiking/f/scd-deals?page="
-    for x in range(1, 2):
+    for x in range(17, 27):
         print(x)
         html = get_html(baseurl, x)
+        if not html:
+            break
         data = parse_page(html)
         for item in data:
             print(item)
