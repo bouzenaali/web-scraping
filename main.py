@@ -20,5 +20,6 @@ for product in products:
     item = {
         "name": extract_text(product, ".Xpx0MUGhB7jSm5UvK2EY"),
         "price":extract_text(product, "span[data-ui=sale-price]"),
+        "savings":extract_text(product, "div[data-ui=savings-percent-variant2]"),
     }
     print(item)
