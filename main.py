@@ -26,16 +26,18 @@ def parse_page(html):
             "price":extract_text(product, "span[data-ui=sale-price]"),
             "savings":extract_text(product, "div[data-ui=savings-percent-variant2]"),
         }
-        print(item)
+        yield item
 
 
 
 def main():
     baseurl = "https://www.rei.com/c/camping-and-hiking/f/scd-deals?page="
-    for x in range(1, 10):
+    for x in range(1, 2):
         print(x)
         html = get_html(baseurl, x)
-        parse_page(html)
+        data = parse_page(html)
+        for item in data:
+            print(item)
 
 
 if __name__ == "__main__":
