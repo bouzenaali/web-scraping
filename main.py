@@ -1,5 +1,7 @@
 import httpx
 from selectolax.parser import HTMLParser
+import time
+
 
 def get_html(base_url, page):
     headers = {
@@ -37,15 +39,16 @@ def parse_page(html):
 
 def main():
     baseurl = "https://www.rei.com/c/camping-and-hiking/f/scd-deals?page="
-    for x in range(17, 27):
-        print(x)
+    for x in range(1, 21):
+        print(f"Getting page: {x}")
         html = get_html(baseurl, x)
         if not html:
             break
         data = parse_page(html)
         for item in data:
             print(item)
-
+            
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
