@@ -1,13 +1,22 @@
 import httpx
 from selectolax.parser import HTMLParser
 import time
+from urllib.parse import urljoin
 
 
-def get_html(base_url, page):
+def get_html(url, **Kwargs):
     headers = {
         "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
-    resp = httpx.get(base_url + str(page), headers=headers, follow_redirects=True)
+    if Kwargs.get("page"):
+        resp = httpx.get(
+            url + str(Kwargs.get("page")), headers=headers, follow_redirects=True
+        )
+    else:
+        resp = httpx.get(
+            url, headers=headers, follow_redirects=True
+        )
+
     try:
         resp.raise_for_status()
     except httpx.HTTPStatusError as exc:
@@ -24,31 +33,28 @@ def extract_text(html, sel):
         return None
     
 
-def parse_page(html):
+def parse_search_page(html: HTMLParser):
     products = html.css("li.VcGDfKKy_dvNbxUqm29K")
 
     for product in products:
-        item = {
-            "name": extract_text(product, ".Xpx0MUGhB7jSm5UvK2EY"),
-            "price":extract_text(product, "span[data-ui=sale-price]"),
-            "savings":extract_text(product, "div[data-ui=savings-percent-variant2]"),
-        }
-        yield item
+        yield urljoin("https://www.rei.com/", product.css_first("a").attrs["href"])
+
 
 
 
 def main():
     baseurl = "https://www.rei.com/c/camping-and-hiking/f/scd-deals?page="
-    for x in range(1, 21):
+    for x in range(1, 2):
         print(f"Getting page: {x}")
-        html = get_html(baseurl, x)
+        html = get_html(baseurl, page=x)
         if not html:
             break
-        data = parse_page(html)
-        for item in data:
-            print(item)
-            
-        time.sleep(1)
+        product_urls = parse_search_page(html)
+        for url in product_urls:
+            print(url)
+            html = get_html(url)
+            print(html.css_first("title").text())
+            time.sleep(1)
 
 if __name__ == "__main__":
     main()
