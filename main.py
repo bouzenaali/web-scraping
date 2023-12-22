@@ -39,7 +39,8 @@ def get_html(url, **Kwargs):
 
 def extract_text(html, sel):
     try:
-        return html.css_first(sel).text()
+        text = html.css_first(sel).text()
+        return clean_data(text)
     except AttributeError:
         return None
 
@@ -56,6 +57,13 @@ def export_to_csv(products):
         writer.writeheader()
         writer.writerows(products)
     print("saved to csv")
+
+def clean_data(value):
+    chars_to_remove = ["$","Item","#"]
+    for char in chars_to_remove:
+        if char in value:
+            value = value.replace(char, "")
+    return value.strip()
 
 def parse_search_page(html):
     products = html.css("li.VcGDfKKy_dvNbxUqm29K")
